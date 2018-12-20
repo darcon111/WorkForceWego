@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "1052720902191",
+    "firebase_url": "https://workforce-247ce.firebaseio.com",
+    "project_id": "workforce-247ce",
+    "storage_bucket": "workforce-247ce.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1052720902191:android:c4a3a2cb02496416",
+        "android_client_info": {
+          "package_name": "com.workforce.app.ec"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1052720902191-qoppmoarsrqao0uvgoc6qsapnt7b1emd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.workforce.app.ec",
+            "certificate_hash": "3cf18dd0922f0cee657c3a0915201a6a40033f9b"
+          }
+        },
+        {
+          "client_id": "1052720902191-pndqi7u4mjmugag6h26nl63ih86fhuaf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDCxMxpDoSO8bGgn0GroHoNCBgVzHCu_NA"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1052720902191-pndqi7u4mjmugag6h26nl63ih86fhuaf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
