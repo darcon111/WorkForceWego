@@ -24,6 +24,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 
+import com.workforce.app.ec.clases.CryptLib;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -39,6 +41,7 @@ import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.NetworkInterface;
 import java.net.URL;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
@@ -47,6 +50,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.crypto.NoSuchPaddingException;
 
 import tgio.rncryptor.RNCryptorNative;
 
@@ -496,6 +501,34 @@ public class Constants {
         return "";
     }
 
+
+    public static String Encrypt(String data) throws Exception {
+
+        if(data.trim().equals(""))
+        {
+            return "";
+
+        }else {
+            CryptLib cryptLib = new CryptLib();
+
+            return cryptLib.encryptPlainTextWithRandomIV(data, CRYPTO_KEY);
+        }
+
+    }
+
+    public static String Decrypt (String data) throws Exception {
+
+        if(data.trim().equals(""))
+        {
+            return "";
+
+        }else {
+
+            CryptLib cryptLib = new CryptLib();
+
+            return cryptLib.decryptCipherTextWithRandomIV(data, CRYPTO_KEY);
+        }
+    }
 
     /*public static String AESEncryptEntity(String data) throws Exception {
 

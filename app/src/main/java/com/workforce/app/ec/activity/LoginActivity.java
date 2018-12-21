@@ -863,7 +863,7 @@ public class LoginActivity extends AppCompatActivity {
 
                                 AppPreferences appPreferences = new AppPreferences(LoginActivity.this);
 
-                                appPreferences.setUserId(mObj.getString("id_persona"));
+                                appPreferences.setUserId( Constants.Decrypt(mObj.getString("id_persona")));
 
                                 pDialog.dismiss();
 
@@ -878,7 +878,7 @@ public class LoginActivity extends AppCompatActivity {
 
                                 pDialog= new SweetAlertDialog(LoginActivity.this, SweetAlertDialog.WARNING_TYPE);
                                 pDialog.setTitleText(getResources().getString(R.string.app_name));
-                                pDialog.setContentText(res.getString("message"));
+                                pDialog.setContentText( Constants.Decrypt(res.getString("message")));
                                 pDialog.setConfirmText(getResources().getString(R.string.ok));
                                 pDialog.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
                                     @Override
@@ -935,9 +935,9 @@ public class LoginActivity extends AppCompatActivity {
                 //Adding parameters
 
                 try {
-                    params.put("email", finalEmail);
-                    params.put("cargo","2");
-                    params.put("origen_crea",Constants.getIPAddress(true));
+                    params.put("email", Constants.Encrypt(finalEmail));
+                    params.put("cargo",Constants.Encrypt("2"));
+                    params.put("origen_crea",Constants.Encrypt(Constants.getIPAddress(true)));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

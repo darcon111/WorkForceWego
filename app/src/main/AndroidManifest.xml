@@ -3,9 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.workforce.app.ec">
 
-    <uses-sdk
-        android:minSdkVersion="16"
-        android:targetSdkVersion="28" />
+    <uses-sdk android:targetSdkVersion="28" />
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />

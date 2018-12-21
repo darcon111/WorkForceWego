@@ -102,7 +102,7 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent">
 
-                        <ec.com.wego.app.clases.ImagenCircular.CircleImageView
+                        <com.workforce.app.ec.clases.ImagenCircular.CircleImageView
                             android:id="@+id/imgPerfil"
                             android:layout_width="125dp"
                             android:layout_height="125dp"
@@ -112,7 +112,7 @@
                     </LinearLayout>
 
 
-                    <ec.com.wego.app.clases.Spinner.MaterialSpinner
+                    <com.workforce.app.ec.clases.Spinner.MaterialSpinner
                         android:id="@+id/tipo_identificacion"
                         style="@style/editText"
                         android:layout_width="0dp"
@@ -129,7 +129,7 @@
                         app:layout_constraintTop_toBottomOf="@+id/linearLayout2"
                         app:ms_hint="@string/tipo_identificacion" />
 
-                    <ec.com.wego.app.clases.Spinner.MaterialSpinner
+                    <com.workforce.app.ec.clases.Spinner.MaterialSpinner
                         android:id="@+id/genero"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -244,7 +244,7 @@
                         tools:layout_editor_absoluteY="384dp" />
 
 
-                    <ec.com.wego.app.clases.Spinner.MaterialSpinner
+                    <com.workforce.app.ec.clases.Spinner.MaterialSpinner
                         android:id="@+id/estado_civil"
                         style="@style/editText"
                         android:layout_width="0dp"

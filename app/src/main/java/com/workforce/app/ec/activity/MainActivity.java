@@ -381,6 +381,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void validaTask(String email){
 
+        Log.d(TAG, "envio");
+
         final JSONObject[] res = {null};
         //Showing the progress dialog
 
@@ -406,7 +408,7 @@ public class MainActivity extends AppCompatActivity {
 
                         try {
 
-                            if(Constants.AESDecryptEntity(res[0].getString("result")).equals("OK") ){
+                            if(res[0].getString("result").equals("OK") ){
 
 
 
@@ -422,18 +424,26 @@ public class MainActivity extends AppCompatActivity {
                                     mObjResp[0] = res[0].getJSONArray("data");
                                     JSONObject mObj = mObjResp[0].getJSONObject(0);
 
-                                    appPreferences.setUserId(Constants.AESDecryptEntity(mObj.getString("id_persona")));
+                                    String id_persona = Constants.Decrypt(mObj.getString("id_persona"));
+
+                                    appPreferences.setUserId(id_persona);
+                                    Log.d(TAG, "idPersona: "+ id_persona);
+
                                     mObj = mObjResp[0].getJSONObject(1);
                                     appPreferences.setImagen(mObj.getString("imagen"));
 
                                     mObj = mObjResp[0].getJSONObject(2);
 
-                                    //if(!appPreferences.getUser().equals(Constants.AESDecryptEntity(mObj.getString("nombres"))))
-                                    //{
-                                    appPreferences.setUser(Constants.AESDecryptEntity(mObj.getString("nombres")));
+                                    String nombre = Constants.Decrypt(mObj.getString("nombres"));
+
+                                    Log.d(TAG, "Nombre: "+ nombre);
+
+                                    if(!appPreferences.getUser().equals(nombre))
+                                    {
+                                    appPreferences.setUser(nombre);
                                     //appPreferences.setActualizar("1");
 
-                                    //}
+                                    }
                                     mObj = mObjResp[0].getJSONObject(3);
 
 
@@ -441,10 +451,12 @@ public class MainActivity extends AppCompatActivity {
 
                                     pDialog.dismiss();
 
+                                    Log.d(TAG, "termino");
+
+                                    message(phone);
 
 
-
-                                    for (int x = 4; x < mObjResp[0].length(); x++) {
+                                   /* for (int x = 4; x < mObjResp[0].length(); x++) {
                                         mObj = mObjResp[0].getJSONObject(x);
 
                                         //mListCategories.add(new Categories(Integer.parseInt(Constants.AESDecryptEntity(mObj.getString("id"))),Constants.AESDecryptEntity(mObj.getString("nombre")),Constants.AESDecryptEntity(mObj.getString("descripcion")),mObj.getString("imagen")));
@@ -455,19 +467,21 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-                                    }
+                                    }*/
 
 
 
 
                                 } catch (JSONException e) {
                                     e.printStackTrace();
+                                    pDialog.dismiss();
                                 } catch (Exception e) {
                                     e.printStackTrace();
+                                    pDialog.dismiss();
                                 }
 
 
-                                pDialog.dismiss();
+
 
                                 //  }
                                 //});
@@ -485,7 +499,7 @@ public class MainActivity extends AppCompatActivity {
 
                                 pDialog= new SweetAlertDialog(MainActivity.this, SweetAlertDialog.ERROR_TYPE);
                                 pDialog.setTitleText(getResources().getString(R.string.app_name));
-                                pDialog.setContentText(Constants.AESDecryptEntity(res[0].getString("message")));
+                                pDialog.setContentText(Constants.Decrypt(res[0].getString("message")));
                                 pDialog.setConfirmText(getResources().getString(R.string.ok));
                                 pDialog.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
                                     @Override
@@ -541,7 +555,8 @@ public class MainActivity extends AppCompatActivity {
                 //Adding parameters
 
                 try {
-                    params.put("email", Constants.AESEncryptEntity(finalEmail));
+                    params.put("email", Constants.Encrypt(finalEmail));
+                    params.put("cargo", Constants.Encrypt("2"));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
