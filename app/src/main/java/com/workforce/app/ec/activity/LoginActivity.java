@@ -857,13 +857,13 @@ public class LoginActivity extends AppCompatActivity {
 
                         try {
 
-                            if(Constants.AESDecryptEntity(res.getString("result")).equals("OK") ){
+                            if(res.getString("result").equals("OK") ){
                                 JSONArray mObjResp = res.getJSONArray("data");
                                 JSONObject mObj = mObjResp.getJSONObject(0);
 
                                 AppPreferences appPreferences = new AppPreferences(LoginActivity.this);
 
-                                appPreferences.setUserId(Constants.AESDecryptEntity(mObj.getString("id_persona")));
+                                appPreferences.setUserId(mObj.getString("id_persona"));
 
                                 pDialog.dismiss();
 
@@ -878,7 +878,7 @@ public class LoginActivity extends AppCompatActivity {
 
                                 pDialog= new SweetAlertDialog(LoginActivity.this, SweetAlertDialog.WARNING_TYPE);
                                 pDialog.setTitleText(getResources().getString(R.string.app_name));
-                                pDialog.setContentText(Constants.AESDecryptEntity(res.getString("message")));
+                                pDialog.setContentText(res.getString("message"));
                                 pDialog.setConfirmText(getResources().getString(R.string.ok));
                                 pDialog.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
                                     @Override
@@ -935,8 +935,9 @@ public class LoginActivity extends AppCompatActivity {
                 //Adding parameters
 
                 try {
-                    params.put("email", Constants.AESEncryptEntity(finalEmail));
-                    params.put("origen_crea",Constants.AESEncryptEntity(Constants.getIPAddress(true)));
+                    params.put("email", finalEmail);
+                    params.put("cargo","2");
+                    params.put("origen_crea",Constants.getIPAddress(true));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">WorkForce</string>
+    <string name="app_name">Wego WorkForce</string>
     <string name="firebase_url">https://pictograma-b8ac7.firebaseio.com</string>
     <string name="facebook_app_id">289545565182154</string>
     <string name="fb_login_protocol_scheme">fb289545565182154</string>

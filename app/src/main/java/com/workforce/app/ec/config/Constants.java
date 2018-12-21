@@ -497,7 +497,7 @@ public class Constants {
     }
 
 
-    public static String AESEncryptEntity(String data) throws Exception {
+    /*public static String AESEncryptEntity(String data) throws Exception {
 
         if(DEVELOPER){
             return data;
@@ -512,9 +512,9 @@ public class Constants {
             }
         }
 
-    }
+    }*/
 
-    public static String AESDecryptEntity(String DataEntity) throws Exception {
+    /*public static String AESDecryptEntity(String DataEntity) throws Exception {
 
         if (DEVELOPER) {
             return DataEntity;
@@ -530,7 +530,7 @@ public class Constants {
                 return e.toString();
             }
         }
-    }
+    }*/
 
     public static boolean isHasJson(JSONObject object, String test) {
         try {
