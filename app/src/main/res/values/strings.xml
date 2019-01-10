@@ -85,8 +85,8 @@
     <string name="ubicacion">Nombre Ubicación</string>
     <string name="contacto">Nombre Contacto</string>
     <string name="foto">Fotos</string>
-    <string name="miservicio">Mis Servicios</string>
-    <string name="miubicaciones">Mis Ubicaciones</string>
+    <string name="miserviciopen">Pendientes</string>
+    <string name="miubicacionescer">Cerradas</string>
     <string name="micontactos">Mis Contactos</string>
     <string name="miubicacion">Buscar ubicación</string>
     <string name="gps">Por favor habilite el gps</string>

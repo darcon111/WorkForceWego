@@ -119,8 +119,8 @@ public class MainActivity extends AppCompatActivity {
 
         /* menu main*/
         TITLES[0] = getString(R.string.help);
-        TITLES[1] = getString(R.string.miservicio);
-        TITLES[2] = getString(R.string.miubicaciones);
+        TITLES[1] = getString(R.string.miserviciopen);
+        TITLES[2] = getString(R.string.miubicacionescer);
         TITLES[3] = getString(R.string.micontactos);
         TITLES[4] = getString(R.string.condition);
         TITLES[5] = getString(R.string.exit);
@@ -379,9 +379,55 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void validaTask(String email){
+    @Override
+    public void onResume() {
+        super.onResume();
 
-        Log.d(TAG, "envio");
+
+
+        if(appPreferences.getActualizar().equals("1")){
+
+            if(mAdapter!=null) {
+                mAdapter.setName(appPreferences.getUser());
+                mAdapter.setImagen(Utemp.getUrl_imagen());
+                mAdapter.notifyItemChanged(0);
+                appPreferences.setActualizar("0");
+            }
+        }
+
+
+    }
+
+    public void message(String phone)
+    {
+
+        if(phone.equals(""))
+        {
+            pDialog= new SweetAlertDialog(MainActivity.this, SweetAlertDialog.WARNING_TYPE);
+            pDialog.setTitleText(getResources().getString(R.string.app_name));
+            pDialog.setContentText(getResources().getString(R.string.complete_perfil));
+            pDialog.setConfirmText(getResources().getString(R.string.ok));
+            pDialog.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                @Override
+                public void onClick(SweetAlertDialog sDialog) {
+                    sDialog.dismiss();
+                    Intent intent = new Intent(MainActivity.this, PerfilActivity.class);
+                    startActivity(intent);
+
+                }
+            });
+            pDialog.show();
+
+        }else
+        {
+            MainActivity.validate_phone = 0;
+        }
+
+
+    }
+
+
+    private void validaTask(String email){
 
         final JSONObject[] res = {null};
         //Showing the progress dialog
@@ -408,15 +454,10 @@ public class MainActivity extends AppCompatActivity {
 
                         try {
 
-                            if(res[0].getString("result").equals("OK") ){
+                            if(res[0].getString("result").equals("OK")) {
 
 
 
-
-                                //Handler handler = new Handler(Looper.getMainLooper());
-                                // handler.post(new Runnable() {
-                                //   @Override
-                                //   public void run() {
 
                                 final JSONArray[] mObjResp = {null};
 
@@ -424,72 +465,36 @@ public class MainActivity extends AppCompatActivity {
                                     mObjResp[0] = res[0].getJSONArray("data");
                                     JSONObject mObj = mObjResp[0].getJSONObject(0);
 
-                                    String id_persona = Constants.Decrypt(mObj.getString("id_persona"));
-
-                                    appPreferences.setUserId(id_persona);
-                                    Log.d(TAG, "idPersona: "+ id_persona);
-
+                                    appPreferences.setUserId(Constants.Decrypt(mObj.getString("id_persona")));
                                     mObj = mObjResp[0].getJSONObject(1);
                                     appPreferences.setImagen(mObj.getString("imagen"));
 
                                     mObj = mObjResp[0].getJSONObject(2);
 
-                                    String nombre = Constants.Decrypt(mObj.getString("nombres"));
-
-                                    Log.d(TAG, "Nombre: "+ nombre);
-
-                                    if(!appPreferences.getUser().equals(nombre))
-                                    {
-                                    appPreferences.setUser(nombre);
+                                    //if(!appPreferences.getUser().equals(Constants.Decrypt(mObj.getString("nombres"))))
+                                    //{
+                                    appPreferences.setUser(Constants.Decrypt(mObj.getString("nombres")));
                                     //appPreferences.setActualizar("1");
 
-                                    }
+                                    //}
                                     mObj = mObjResp[0].getJSONObject(3);
 
 
                                     final String phone =  mObj.getString("telefono");
-
                                     pDialog.dismiss();
-
-                                    Log.d(TAG, "termino");
 
                                     message(phone);
 
 
-                                   /* for (int x = 4; x < mObjResp[0].length(); x++) {
-                                        mObj = mObjResp[0].getJSONObject(x);
-
-                                        //mListCategories.add(new Categories(Integer.parseInt(Constants.AESDecryptEntity(mObj.getString("id"))),Constants.AESDecryptEntity(mObj.getString("nombre")),Constants.AESDecryptEntity(mObj.getString("descripcion")),mObj.getString("imagen")));
-                                        //mCategoriesAdapter.notifyItemChanged(x-2);
-
-
-
-
-
-
-                                    }*/
 
 
 
 
                                 } catch (JSONException e) {
                                     e.printStackTrace();
-                                    pDialog.dismiss();
                                 } catch (Exception e) {
                                     e.printStackTrace();
-                                    pDialog.dismiss();
                                 }
-
-
-
-
-                                //  }
-                                //});
-
-
-
-
-
 
 
                             }else
@@ -556,6 +561,7 @@ public class MainActivity extends AppCompatActivity {
 
                 try {
                     params.put("email", Constants.Encrypt(finalEmail));
+                    params.put("token", appPreferences.getFirebasetoken());
                     params.put("cargo", Constants.Encrypt("2"));
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -582,54 +588,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-
-
-        if(appPreferences.getActualizar().equals("1")){
-
-            if(mAdapter!=null) {
-                mAdapter.setName(appPreferences.getUser());
-                mAdapter.setImagen(Utemp.getUrl_imagen());
-                mAdapter.notifyItemChanged(0);
-                appPreferences.setActualizar("0");
-            }
-        }
-
-
-    }
-
-    public void message(String phone)
-    {
-
-        if(phone.equals(""))
-        {
-            pDialog= new SweetAlertDialog(MainActivity.this, SweetAlertDialog.WARNING_TYPE);
-            pDialog.setTitleText(getResources().getString(R.string.app_name));
-            pDialog.setContentText(getResources().getString(R.string.complete_perfil));
-            pDialog.setConfirmText(getResources().getString(R.string.ok));
-            pDialog.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
-                @Override
-                public void onClick(SweetAlertDialog sDialog) {
-                    sDialog.dismiss();
-                    Intent intent = new Intent(MainActivity.this, PerfilActivity.class);
-                    startActivity(intent);
-
-                }
-            });
-            pDialog.show();
-
-        }else
-        {
-            MainActivity.validate_phone = 0;
-        }
-
-
-    }
-
 
 
 

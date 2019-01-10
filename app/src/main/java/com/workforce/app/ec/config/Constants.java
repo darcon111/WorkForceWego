@@ -70,7 +70,7 @@ public class Constants {
     public static final String GOOGLE_API_KEY="AIzaSyAWc_pX61n4Y1aeRYBk14uPtBlhmtuQMK8";
     public static final String URL_SERVER= "http://darcontechnology.com/index.php/servicies/";
     private static final String CRYPTO_KEY="18112017@1986";
-    private static final Boolean DEVELOPER= false;
+    private static final Boolean DEVELOPER= true;
 
 
 
@@ -501,32 +501,52 @@ public class Constants {
         return "";
     }
 
-
     public static String Encrypt(String data) throws Exception {
 
-        if(data.trim().equals(""))
+        if(Constants.DEVELOPER)
         {
-            return "";
+            return  data;
 
-        }else {
-            CryptLib cryptLib = new CryptLib();
+        }else
+        {
 
-            return cryptLib.encryptPlainTextWithRandomIV(data, CRYPTO_KEY);
+            if (data.trim().length()==0)
+            {
+
+                return data;
+
+            }else {
+                CryptLib cryptLib = new CryptLib();
+
+                return cryptLib.encryptPlainTextWithRandomIV(data, CRYPTO_KEY);
+            }
         }
+
+
+
 
     }
 
     public static String Decrypt (String data) throws Exception {
 
-        if(data.trim().equals(""))
+        if(Constants.DEVELOPER)
         {
-            return "";
+            return  data;
 
         }else {
 
-            CryptLib cryptLib = new CryptLib();
+            if (data.trim().length()==0)
+            {
 
-            return cryptLib.decryptCipherTextWithRandomIV(data, CRYPTO_KEY);
+                return data;
+
+            }else {
+
+                CryptLib cryptLib = new CryptLib();
+
+                return cryptLib.decryptCipherTextWithRandomIV(data, CRYPTO_KEY);
+            }
+
         }
     }
 

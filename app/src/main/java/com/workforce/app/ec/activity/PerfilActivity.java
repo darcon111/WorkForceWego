@@ -243,15 +243,15 @@ public class PerfilActivity extends AppCompatActivity implements
             public void onClick(View v) {
 
 
-                /*if(tipo_identificacion.getSelectedItemPosition()==0){
+                if(tipo_identificacion.getSelectedItemPosition()==0){
 
                     tipo_identificacion.setError(getResources().getString(R.string.error_tipo_identificacion));
                     return;
 
-                }*/
+                }
 
 
-                /*if(txtIdentificacion.getText().toString().trim().equals("")){
+                if(txtIdentificacion.getText().toString().trim().equals("")){
 
                     txtIdentificacion.setError(getResources().getString(R.string.error_identificacion));
                     return;
@@ -263,7 +263,7 @@ public class PerfilActivity extends AppCompatActivity implements
                     genero.setError(getResources().getString(R.string.error_genero));
                     return;
 
-                }*/
+                }
 
 
 
@@ -324,7 +324,7 @@ public class PerfilActivity extends AppCompatActivity implements
 
                 }
 
-                /*if(estado_civil.getSelectedItemPosition()==0){
+                if(estado_civil.getSelectedItemPosition()==0){
 
                     estado_civil.setError(getResources().getString(R.string.error_estado_civil));
                     return;
@@ -336,16 +336,16 @@ public class PerfilActivity extends AppCompatActivity implements
                     ciudad.setError(getResources().getString(R.string.error_ciudad));
                     return;
 
-                }*/
+                }
 
 
 
-                /*if(txtFecha.getText().toString().trim().equals("")){
+                if(txtFecha.getText().toString().trim().equals("")){
 
                     txtFecha.setError(getResources().getString(R.string.error_fecha));
                     return;
 
-                }*/
+                }
 
             }
         });
@@ -520,6 +520,7 @@ public class PerfilActivity extends AppCompatActivity implements
                                             txtIdentificacion.setText(Constants.Decrypt(mObj.getString("identificacion")));
 
                                             telefono =  Constants.Decrypt(mObj.getString("telefono"));
+                                            telefono = "0"+telefono;
                                             txttelefono.setText(telefono);
 
                                             select_tipo_identificacion = Integer.parseInt(Constants.Decrypt(mObj.getString("tipo_identificacion")));
@@ -1172,14 +1173,20 @@ public class PerfilActivity extends AppCompatActivity implements
                     params.put("userid", Constants.Encrypt(app.getUserId()));
                     params.put("nombres", Constants.Encrypt(txtNombres.getText().toString()));
                     params.put("apellidos", Constants.Encrypt(txtApellidos.getText().toString()));
-                    //params.put("identificacion", Constants.AESEncryptEntity(txtIdentificacion.getText().toString()));
-                    //params.put("fecha_nacimiento", Constants.AESEncryptEntity(txtFecha.getText().toString()));
+                    params.put("identificacion", Constants.Encrypt(txtIdentificacion.getText().toString()));
+                    params.put("fecha_nacimiento", Constants.Encrypt(txtFecha.getText().toString()));
                     params.put("telefono", Constants.Encrypt(txttelefono.getText().toString()));
                     params.put("origen_mod",Constants.Encrypt(Constants.getIPAddress(true)));
 
-                    //params.put("tipo_identificacion", Constants.AESEncryptEntity(tipo_identificacion));
-                    // params.put("estado_civil", Constants.AESEncryptEntity(estado_civil));
-                    // params.put("ciudad_id", Constants.AESEncryptEntity(ciudad));
+                   /* params.put("tipo_identificacion", Constants.Encrypt(tipo_identificacion));
+                    params.put("estado_civil", Constants.Encrypt(estado_civil));
+                    params.put("ciudad_id", Constants.Encrypt(ciudad));*/
+
+
+                    params.put("tipo_identificacion", Constants.Encrypt("1"));
+                    params.put("estado_civil", Constants.Encrypt("1"));
+                    params.put("ciudad_id", Constants.Encrypt("1"));
+                    params.put("cargo", Constants.Encrypt("2"));
 
                 } catch (Exception e) {
                     e.printStackTrace();
