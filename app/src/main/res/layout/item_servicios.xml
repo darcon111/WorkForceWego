@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/contenedor"
+    style="@style/cardView"
+    android:layout_width="match_parent"
+    android:layout_height="150dp"
+    android:layout_gravity="center"
+    app:cardCornerRadius="5dp"
+    app:cardElevation="8dp"
+    app:layout_collapseMode="pin">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical|center_horizontal"
+        android:orientation="horizontal"
+        android:padding="5dp">
+
+        <ImageView
+            android:id="@+id/imageView5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            app:srcCompat="@drawable/ic_servicios" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/txtServicio"
+                style="@style/title"
+                android:layout_width="match_parent"
+                android:layout_weight="1"
+                android:lines="1"
+                android:maxLines="1"
+                android:singleLine="false"
+                android:textColor="@color/colorSecondaryText"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/txtNombre"
+                style="@style/textView"
+                android:layout_width="match_parent"
+                android:layout_weight="1"
+                android:lines="1"
+                android:maxLines="1"
+                android:singleLine="false"
+                android:textColor="@color/colorSecondaryText"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/txtFecha"
+                style="@style/textView"
+                android:layout_width="match_parent"
+                android:layout_weight="1"
+                android:lines="1" />
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+</android.support.v7.widget.CardView>

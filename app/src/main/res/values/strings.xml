@@ -36,7 +36,7 @@
     <string name="auth">Cargando...</string>
     <string name="error_pass">Ingrese su Contraseña</string>
     <string name="error_login_pass">Contraseña Incorrecta</string>
-    <string name="servicies">Seleccione el servicio que necesite</string>
+    <string name="servicies">Seleccione la orden de trabajo que va atender</string>
     <string name="error_pass_debil">Contraseña demasiado debil</string>
     <string name="error_user_exite">Cuenta no existe, por favor regístrese</string>
     <string name="guardar">Guardar</string>
@@ -127,6 +127,7 @@
     <string name="total">Total</string>
     <string name="pagar">Pagar</string>
     <string name="infor">Información</string>
+    <string name="asignar">Esta seguro que desea tomar esta orden ???</string>
 
 
     <string name="default_notification_channel_id">1000005</string>

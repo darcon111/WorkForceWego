@@ -10,12 +10,20 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.Filter;
+import android.widget.Filterable;
+import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,6 +52,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.workforce.app.ec.R;
 import com.workforce.app.ec.adapter.MenuAdapter;
+import com.workforce.app.ec.clases.Ordenes;
+import com.workforce.app.ec.clases.Spinner.MaterialSpinner;
 import com.workforce.app.ec.clases.User;
 import com.workforce.app.ec.config.AppPreferences;
 import com.workforce.app.ec.config.Constants;
@@ -86,6 +96,12 @@ public class MainActivity extends AppCompatActivity {
     public static int validate_phone = 1;
 
     private SearchView searchView;
+
+    public static ArrayList<Ordenes> mListServicios;
+    private ArrayList<Ordenes> mListServiciosFilter;
+    private ServiciesRecycleAdapter mServiciesAdapter;
+    private RecyclerView mServiciosRecyclerView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -249,6 +265,37 @@ public class MainActivity extends AppCompatActivity {
         FirebaseMessaging.getInstance().subscribeToTopic("wegoWorkForce");
 
 
+        mServiciosRecyclerView = (RecyclerView) findViewById(R.id.ordenes);
+
+        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(1, 1);
+
+        mServiciosRecyclerView.setLayoutManager(layoutManager);
+        mServiciesAdapter = new ServiciesRecycleAdapter();
+        mServiciosRecyclerView.setAdapter(mServiciesAdapter);
+
+        mListServicios = new ArrayList<Ordenes>();
+        mListServiciosFilter = new ArrayList<Ordenes>();
+
+
+        searchView=(SearchView) findViewById(R.id.busqueda);
+
+        //busqueda
+        // listening to search query text change
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                // filter recycler view when query submitted
+                mServiciesAdapter.getFilter().filter(query);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String query) {
+                // filter recycler view when text is changed
+                mServiciesAdapter.getFilter().filter(query);
+                return false;
+            }
+        });
 
 
 
@@ -300,6 +347,9 @@ public class MainActivity extends AppCompatActivity {
                 switch (position) {
                     case 1:
 
+                        intent = new Intent(MainActivity.this,AyudaActivity.class);
+                        startActivity(intent);
+
                         break;
                     case 2:
                         //intent = new Intent(MainActivity.this,MyServiciesActivity.class);
@@ -321,6 +371,9 @@ public class MainActivity extends AppCompatActivity {
                         break;
 
                     case 5:
+
+                        intent = new Intent(MainActivity.this,TermsActivity.class);
+                        startActivity(intent);
 
 
                         break;
@@ -426,6 +479,158 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void asignar(final int idOrden,final int position)
+    {
+        final JSONObject[] res = {null};
+        //Showing the progress dialog
+
+
+        Constants.deleteCache(MainActivity.this);
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, Constants.URL_SERVER+"asignar_orden/format/json",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String responde) {
+                        Log.d(TAG, responde);
+
+                        //Showing toast message of the response
+
+
+                        try {
+                            res[0] = new JSONObject(responde);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            pDialog.dismiss();
+                        }
+
+                        try {
+
+                            if(res[0].getString("result").equals("OK")) {
+
+
+
+
+                                final JSONArray[] mObjResp = {null};
+
+                                try {
+                                    mObjResp[0] = res[0].getJSONArray("data");
+
+                                    pDialog.dismiss();
+
+                                    pDialog= new SweetAlertDialog(MainActivity.this, SweetAlertDialog.SUCCESS_TYPE);
+                                    pDialog.setTitleText(getResources().getString(R.string.app_name));
+                                    pDialog.setContentText(Constants.Decrypt(res[0].getString("message")));
+                                    pDialog.setConfirmText(getResources().getString(R.string.ok));
+                                    pDialog.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                                        @Override
+                                        public void onClick(SweetAlertDialog sDialog) {
+                                            sDialog.dismissWithAnimation();
+                                            mServiciesAdapter.removeItem(position);
+
+                                        }
+                                    });
+                                    pDialog.show();
+
+
+
+
+
+
+
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+
+
+                            }else
+                            {
+                                pDialog.dismiss();
+
+
+                                pDialog= new SweetAlertDialog(MainActivity.this, SweetAlertDialog.ERROR_TYPE);
+                                pDialog.setTitleText(getResources().getString(R.string.app_name));
+                                pDialog.setContentText(Constants.Decrypt(res[0].getString("message")));
+                                pDialog.setConfirmText(getResources().getString(R.string.ok));
+                                pDialog.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                                    @Override
+                                    public void onClick(SweetAlertDialog sDialog) {
+                                        sDialog.dismissWithAnimation();
+
+                                    }
+                                });
+                                pDialog.show();
+
+
+
+
+                            }
+                        } catch (JSONException e) {
+                            pDialog.dismiss();
+                            Log.d(TAG, e.toString());
+                            e.printStackTrace();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+                        //Dismissing the progress dialog
+                        pDialog.dismiss();
+
+                        if(volleyError.networkResponse != null && volleyError.networkResponse.data != null){
+                            VolleyError error = new VolleyError(new String(volleyError.networkResponse.data));
+                            volleyError = error;
+                        }
+
+                        //Showing toast
+                        Log.d(TAG, volleyError.toString());
+                        Toast.makeText(MainActivity.this, volleyError.toString(), Toast.LENGTH_LONG).show();
+
+
+                    }
+                }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+
+
+                //Creating parameters
+                Map<String,String> params = new Hashtable<String, String>();
+
+                //Adding parameters
+
+                try {
+                    params.put("userid",Constants.Encrypt(appPreferences.getUserId()));
+                    params.put("idorden", Constants.Encrypt(String.valueOf(idOrden)));
+                    params.put("origen_mod",Constants.Encrypt(Constants.getIPAddress(true)));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                //returning parameters
+                return params;
+            }
+        };
+
+
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(
+                50000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+        RequestQueue volleyQueue = Volley.newRequestQueue(this);
+        volleyQueue.add(stringRequest);
+        DiskBasedCache cache = new DiskBasedCache(getCacheDir(), 500 * 1024 * 1024);
+        volleyQueue = new RequestQueue(cache, new BasicNetwork(new HurlStack()));
+        volleyQueue.start();
+
+    }
+
 
     private void validaTask(String email){
 
@@ -471,19 +676,51 @@ public class MainActivity extends AppCompatActivity {
 
                                     mObj = mObjResp[0].getJSONObject(2);
 
-                                    //if(!appPreferences.getUser().equals(Constants.Decrypt(mObj.getString("nombres"))))
-                                    //{
                                     appPreferences.setUser(Constants.Decrypt(mObj.getString("nombres")));
-                                    //appPreferences.setActualizar("1");
 
-                                    //}
                                     mObj = mObjResp[0].getJSONObject(3);
 
 
                                     final String phone =  mObj.getString("telefono");
                                     pDialog.dismiss();
 
-                                    message(phone);
+                                    for (int x = 4; x < mObjResp[0].length(); x++) {
+                                        mObj = mObjResp[0].getJSONObject(x);
+
+
+                                        final JSONObject finalMObj = mObj;
+                                        final int finalX = x;
+                                        final int cantidad =  mObjResp[0].length();
+                                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                try {
+
+
+                                                    mListServicios.add(new Ordenes(Integer.parseInt(Constants.Decrypt(finalMObj.getString("id"))), Constants.Decrypt(finalMObj.getString("cliente")), Constants.Decrypt(finalMObj.getString("servicio")), Integer.parseInt(Constants.Decrypt(finalMObj.getString("estado"))), Constants.Decrypt(finalMObj.getString("fecha")), Constants.Decrypt(finalMObj.getString("costo")), Constants.Decrypt(finalMObj.getString("direccion")), Constants.Decrypt(finalMObj.getString("longitud")),Constants.Decrypt(finalMObj.getString("latitud"))));
+
+                                                    } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                }
+
+                                                if( finalX == (cantidad -1)){
+                                                    message(phone);
+                                                }
+
+                                                mListServiciosFilter = mListServicios;
+                                                mServiciesAdapter.notifyItemChanged(finalX);
+
+
+                                            }
+                                        });
+
+
+
+
+
+                                    }
+
+
 
 
 
@@ -588,6 +825,153 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+
+
+    /* adapter*/
+
+    public class ServiciesRecycleAdapter extends RecyclerView.Adapter<ServiciesRecycleHolder>   implements Filterable {
+        private int lastPosition = -1;
+
+        @Override
+        public  ServiciesRecycleHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+
+            View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_servicios, viewGroup, false);
+            setAnimation(v,i);
+            return new  ServiciesRecycleHolder(v);
+        }
+
+
+        @Override
+        public void onBindViewHolder(final  ServiciesRecycleHolder productHolder, final int i) {
+
+            productHolder.mtxtNombre.setText(mListServiciosFilter.get(i).getCliente());
+            productHolder.mtxtFecha.setText(mListServiciosFilter.get(i).getFecha());
+            productHolder.mtxtServicio.setText(mListServiciosFilter.get(i).getServicio());
+
+
+            productHolder.mContenedor.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    pDialog = new SweetAlertDialog(MainActivity.this, SweetAlertDialog.WARNING_TYPE);
+                    pDialog.setTitleText(getResources().getString(R.string.app_name));
+                    pDialog.setContentText(getString(R.string.asignar));
+                    pDialog.setConfirmText(getResources().getString(R.string.yes));
+                    pDialog.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                        @Override
+                        public void onClick(SweetAlertDialog sDialog) {
+                            sDialog.dismissWithAnimation();
+                            asignar(mListServiciosFilter.get(i).getId(),i);
+
+                        }
+                    });
+                    pDialog.setCancelText(getString(R.string.no));
+                    pDialog.show();
+
+
+
+
+                }
+            });
+
+            setAnimation(productHolder.itemView, i);
+
+
+
+        }
+
+
+        @Override
+        public int getItemCount() {
+            return mListServiciosFilter.size();
+        }
+
+        public void removeItem(int position) {
+            mListServiciosFilter.remove(position);
+            notifyItemRemoved(position);
+            notifyItemRangeChanged(position, mListServiciosFilter.size());
+            //Signal.get().reset();
+
+
+        }
+
+        private void setAnimation(View viewToAnimate, int position) {
+            // If the bound view wasn't previously displayed on screen, it's animated
+            if (position > lastPosition) {
+                Animation animation;
+                if (position % 2 == 0) {
+                    animation = AnimationUtils.loadAnimation(MainActivity.this, R.anim.zoom_back_in);
+                } else {
+                    animation = AnimationUtils.loadAnimation(MainActivity.this, R.anim.zoom_forward_in);
+                }
+
+                viewToAnimate.startAnimation(animation);
+                lastPosition = position;
+            }
+        }
+
+        @Override
+        public Filter getFilter() {
+            return new Filter() {
+                @Override
+                protected FilterResults performFiltering(CharSequence charSequence) {
+                    String charString = charSequence.toString();
+                    if (charString.isEmpty()) {
+                        mListServiciosFilter = mListServicios;
+                    } else {
+                        ArrayList<Ordenes> filteredList = new ArrayList<>();
+                        for (Ordenes row : mListServicios) {
+
+                            // name match condition. this might differ depending on your requirement
+                            // here we are looking for name or phone number match
+
+
+                            if (row.getCliente().toLowerCase().contains(charString.toLowerCase()) || row.getServicio().toLowerCase().contains(charString.toLowerCase()) || row.getDireccion().toLowerCase().contains(charString.toLowerCase()) || row.getFecha().toLowerCase().contains(charString.toLowerCase()))
+                            {
+                                filteredList.add(row);
+                            }
+
+                        }
+
+                        mListServiciosFilter = filteredList;
+                    }
+
+                    FilterResults filterResults = new FilterResults();
+                    filterResults.values = mListServiciosFilter;
+                    return filterResults;
+                }
+
+                @Override
+                protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
+                    mListServiciosFilter = (ArrayList<Ordenes>) filterResults.values;
+                    notifyDataSetChanged();
+                }
+            };
+        }
+
+
+    }
+
+    public class  ServiciesRecycleHolder extends RecyclerView.ViewHolder {
+        public TextView mtxtNombre;
+        public TextView mtxtFecha;
+        public TextView mtxtServicio;
+        public CardView mContenedor;
+
+
+
+
+        public  ServiciesRecycleHolder(View itemView) {
+            super(itemView);
+            mtxtNombre = (TextView) itemView.findViewById(R.id.txtNombre);
+            mtxtFecha = (TextView) itemView.findViewById(R.id.txtFecha);
+            mtxtServicio = (TextView) itemView.findViewById(R.id.txtServicio);
+            mContenedor = (CardView) itemView.findViewById(R.id.contenedor);
+
+        }
+    }
+
 
 
 
