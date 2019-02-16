@@ -50,14 +50,7 @@ public class FCMService extends FirebaseMessagingService {
 
                 String title =  res.getString("title");
                 String body = res.getString("body");
-                String msg = res.getString("msg");
-                // String device = res.getString("device");
 
-                String firebaseid= "";
-                if(res.getString("firebaseId")!=null)
-                {
-                    firebaseid=res.getString("firebaseId");
-                }
 
                 notificacion (title, body);
 

@@ -143,7 +143,7 @@ public class LoginActivity extends AppCompatActivity {
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         main=(ConstraintLayout) findViewById(R.id.main);
-        txtEmail= (EditText) findViewById(R.id.txtemail);
+        txtEmail= (EditText) findViewById(R.id.txtMotivo);
         txtPass= (EditText) findViewById(R.id.txtpass);
         // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
@@ -713,7 +713,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        final EditText txtemail=(EditText) v.findViewById(R.id.txtemail);
+        final EditText txtemail=(EditText) v.findViewById(R.id.txtMotivo);
 
         Button btnsend=(Button) v.findViewById(R.id.send);
         btnsend.setOnClickListener(new View.OnClickListener() {

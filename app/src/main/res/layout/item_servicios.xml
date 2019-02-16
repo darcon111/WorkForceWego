@@ -18,13 +18,6 @@
         android:orientation="horizontal"
         android:padding="5dp">
 
-        <ImageView
-            android:id="@+id/imageView5"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
-            app:srcCompat="@drawable/ic_servicios" />
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -33,7 +26,7 @@
 
             <TextView
                 android:id="@+id/txtServicio"
-                style="@style/title"
+                style="@style/textView"
                 android:layout_width="match_parent"
                 android:layout_weight="1"
                 android:lines="1"
@@ -59,6 +52,39 @@
                 android:layout_width="match_parent"
                 android:layout_weight="1"
                 android:lines="1" />
+
+            <TextView
+                android:id="@+id/txtDistancia"
+                style="@style/textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="3.5"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/img"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                app:srcCompat="@drawable/search" />
+
+            <TextView
+                android:id="@+id/txtEstado"
+                style="@style/textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_horizontal|center_vertical"
+                android:textColor="@color/colorAccent"
+                android:textSize="12sp" />
 
         </LinearLayout>
 

@@ -407,7 +407,7 @@ public class Constants {
         return bd;
     }
 
-    public static float distancia(double latA, double lngA,double latB,double lngB)
+    public static String distancia(double latA, double lngA,double latB,double lngB)
     {
         Location locationA = new Location("punto A");
 
@@ -425,19 +425,13 @@ public class Constants {
         float temp = bd.floatValue();
         if(temp<1000)
         {
-            return 500;
-        }else if(temp>=1000 && temp <=10000)
-        {
-            return 10;
-        }else if(temp>=10001 && temp <=25000)
-        {
-            return 25;
+            return String.format("%.2f", temp) +" mt";
         }else
         {
-            return 26;
+            return String.format("%.2f", (temp/1000)) +" Km";
         }
 
-        //return  bd.floatValue();
+
     }
 
 

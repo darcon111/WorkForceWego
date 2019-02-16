@@ -208,7 +208,7 @@ public class PerfilActivity extends AppCompatActivity implements
         txttelefono= (EditText) findViewById(R.id.txttelefono);
         txtpass= (EditText) findViewById(R.id.txtpass);
         txtnewpass= (EditText) findViewById(R.id.txtnewpass);
-        txtemail= (EditText) findViewById(R.id.txtemail);
+        txtemail= (EditText) findViewById(R.id.txtMotivo);
 
         fragment= (FrameLayout) findViewById(R.id.fragment);
 

@@ -43,7 +43,7 @@ public class RegistryActivity extends AppCompatActivity {
         // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
 
-        txtEmail= (EditText) findViewById(R.id.txtemail);
+        txtEmail= (EditText) findViewById(R.id.txtMotivo);
         txtPass= (EditText) findViewById(R.id.txtpass);
 
 

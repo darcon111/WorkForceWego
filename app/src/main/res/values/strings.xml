@@ -4,6 +4,7 @@
     <string name="facebook_app_id">289545565182154</string>
     <string name="fb_login_protocol_scheme">fb289545565182154</string>
     <string name="help">Ayuda</string>
+    <string name="ganancias">Ganancias</string>
     <string name="config">Configuración</string>
     <string name="share">Compartir</string>
     <string name="terms">Terminos</string>
@@ -37,6 +38,7 @@
     <string name="error_pass">Ingrese su Contraseña</string>
     <string name="error_login_pass">Contraseña Incorrecta</string>
     <string name="servicies">Seleccione la orden de trabajo que va atender</string>
+    <string name="servicies_atender">Seleccione la orden de trabajo que va gestionar</string>
     <string name="error_pass_debil">Contraseña demasiado debil</string>
     <string name="error_user_exite">Cuenta no existe, por favor regístrese</string>
     <string name="guardar">Guardar</string>
@@ -94,7 +96,7 @@
     <string name="ubicacionvisita">Ubicación de la visita</string>
     <string name="edificio">Vives en un edificio?</string>
     <string name="piso">Piso</string>
-    <string name="departamento"># Departamento</string>
+    <string name="depar">Departamento</string>
     <string name="selectimagen">Seleccione imagenes</string>
 
     <string name="colorAccent">#FF5252</string>
@@ -128,6 +130,33 @@
     <string name="pagar">Pagar</string>
     <string name="infor">Información</string>
     <string name="asignar">Esta seguro que desea tomar esta orden ???</string>
+    <string name="noordenes">No hay ordenes de servicios disponibles</string>
+    <string name="noordenesasi">No hay ordenes de servicio asignadas disponibles</string>
+    <string name="orden">Orden Servicio</string>
+    <string name="servicio">Servicio</string>
+    <string name="cliente">Cliente</string>
+    <string name="fecha_orden">Fecha</string>
+    <string name="costo">Costo</string>
+    <string name="contacto_orden">Contacto</string>
+    <string name="ubicacion_orden">Ubicación</string>
+    <string name="calificacion">Calificacion</string>
+    <string name="terminar">Terminar</string>
+    <string name="asignar_orden">Asignar</string>
+    <string name="ejecutar_orden">Ejecutar</string>
+    <string name="pisp">Piso</string>
+    <string name="motivo">Motivo</string>
+    <string name="motivo_orden">Ingrese el motivo de la cancelación</string>
+    <string name="motivo_ingrese">Error</string>
+    <string name="puntual">Puntual</string>
+    <string name="calidad">Calidad Servicio</string>
+    <string name="rapidez">Rapidez</string>
+    <string name="trabajos">Trabajos</string>
+    <string name="saldo">Saldo</string>
+    <string name="resumen">Resumen Pagos</string>
+    <string name="distancia">Distancia</string>
+    <string name="calificaciones">Calificaciones</string>
+    <string name="promedio">Promedio</string>
+    <string name="resumenc">Resumen Calificacion</string>
 
 
     <string name="default_notification_channel_id">1000005</string>

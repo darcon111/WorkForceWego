@@ -1,10 +1,13 @@
 package com.workforce.app.ec.activity;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.design.widget.TabLayout;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -41,6 +44,16 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.crashlytics.android.Crashlytics;
 import com.facebook.login.LoginManager;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsStates;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -52,11 +65,14 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.workforce.app.ec.R;
 import com.workforce.app.ec.adapter.MenuAdapter;
+import com.workforce.app.ec.clases.GPS;
 import com.workforce.app.ec.clases.Ordenes;
 import com.workforce.app.ec.clases.Spinner.MaterialSpinner;
 import com.workforce.app.ec.clases.User;
 import com.workforce.app.ec.config.AppPreferences;
 import com.workforce.app.ec.config.Constants;
+import com.workforce.app.ec.fragments.MistrabajosActivity;
+import com.workforce.app.ec.fragments.TrabajosActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -74,8 +90,8 @@ public class MainActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
     private RecyclerView mRecyclerView_main;
-    private String[] TITLES = new String[8];
-    private int[] ICONS = new int[8];
+    private String[] TITLES = new String[5];
+    private int[] ICONS = new int[5];
     private ActionBarDrawerToggle mDrawerToggle;
 
     private int PROFILE = R.drawable.ic_user;
@@ -84,23 +100,24 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout Drawer;
     private String TAG = MainActivity.class.getName();
     private String name="Usuario";
-    private static FirebaseUser user;
+    public static FirebaseUser user;
 
 
-    private SweetAlertDialog pDialog;
+
     private AppPreferences appPreferences;
     private DatabaseReference databaseUsers;
     public static User Utemp;
     private String provider;
     private String imagen;
     public static int validate_phone = 1;
+    private SweetAlertDialog pDialog;
+    public  static GPS gps = null;
+    private String lat,log;
+    protected static final int REQUEST_CHECK_SETTINGS = 0x1;
+    private GoogleApiClient googleApiClient;
 
-    private SearchView searchView;
 
-    public static ArrayList<Ordenes> mListServicios;
-    private ArrayList<Ordenes> mListServiciosFilter;
-    private ServiciesRecycleAdapter mServiciesAdapter;
-    private RecyclerView mServiciosRecyclerView;
+    private TabLayout tabLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,18 +152,29 @@ public class MainActivity extends AppCompatActivity {
 
         /* menu main*/
         TITLES[0] = getString(R.string.help);
-        TITLES[1] = getString(R.string.miserviciopen);
-        TITLES[2] = getString(R.string.miubicacionescer);
-        TITLES[3] = getString(R.string.micontactos);
-        TITLES[4] = getString(R.string.condition);
-        TITLES[5] = getString(R.string.exit);
+        TITLES[1] = getString(R.string.ganancias);
+        TITLES[2] = getString(R.string.calificaciones);
+        TITLES[3] = getString(R.string.condition);
+        TITLES[4] = getString(R.string.exit);
 
         ICONS[0] = R.drawable.ic_help;
         ICONS[1] = R.drawable.ic_help;
         ICONS[2] = R.drawable.ic_help;
         ICONS[3] = R.drawable.ic_help;
         ICONS[4] = R.drawable.ic_help;
-        ICONS[5] = R.drawable.ic_help;
+
+
+        gps = new GPS(MainActivity.this);
+        if (!gps.canGetLocation()) {
+            //gps.showSettingsAlert();
+            settingsrequest();
+        }else {
+            //gps.city();
+
+            lat = String.valueOf(gps.getLatitude());
+            log = String.valueOf(gps.getLongitude());
+        }
+
 
 
 
@@ -172,11 +200,11 @@ public class MainActivity extends AppCompatActivity {
         Query userquery = databaseUsers
                 .orderByChild("email").equalTo(user.getEmail());
 
-        pDialog = new SweetAlertDialog(this, SweetAlertDialog.PROGRESS_TYPE);
-        pDialog.getProgressHelper().setBarColor(Color.parseColor(getString(R.string.colorAccent)));
-        pDialog.setTitleText(getResources().getString(R.string.auth));
-        pDialog.setCancelable(false);
-        pDialog.show();
+        //pDialog = new SweetAlertDialog(this, SweetAlertDialog.PROGRESS_TYPE);
+        //pDialog.getProgressHelper().setBarColor(Color.parseColor(getString(R.string.colorAccent)));
+        //pDialog.setTitleText(getResources().getString(R.string.auth));
+        //pDialog.setCancelable(false);
+        //pDialog.show();
 
 
         userquery.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -243,7 +271,6 @@ public class MainActivity extends AppCompatActivity {
 
                 }
                 menu();
-                validaTask(user.getEmail());
             }
 
             @Override
@@ -265,37 +292,59 @@ public class MainActivity extends AppCompatActivity {
         FirebaseMessaging.getInstance().subscribeToTopic("wegoWorkForce");
 
 
-        mServiciosRecyclerView = (RecyclerView) findViewById(R.id.ordenes);
-
-        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(1, 1);
-
-        mServiciosRecyclerView.setLayoutManager(layoutManager);
-        mServiciesAdapter = new ServiciesRecycleAdapter();
-        mServiciosRecyclerView.setAdapter(mServiciesAdapter);
-
-        mListServicios = new ArrayList<Ordenes>();
-        mListServiciosFilter = new ArrayList<Ordenes>();
 
 
-        searchView=(SearchView) findViewById(R.id.busqueda);
 
-        //busqueda
-        // listening to search query text change
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
+        //Initializing the tablayout
+        tabLayout = (TabLayout) findViewById(R.id.tabLayout);
+        tabLayout.setEnabled(false);
+
+        /*for (int i = 0; i < tabLayout.getTabCount(); i++) {
+            //noinspection ConstantConditions
+            TextView tv = (TextView)LayoutInflater.from(this).inflate(R.layout.custom_tab,null);
+            //tv.setTypeface(Typeface);
+            tabLayout.getTabAt(i).setCustomView(tv);
+        }*/
+
+
+        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
-            public boolean onQueryTextSubmit(String query) {
-                // filter recycler view when query submitted
-                mServiciesAdapter.getFilter().filter(query);
-                return false;
+            public void onTabSelected(TabLayout.Tab tab) {
+
+                if(tab.getPosition()==0)
+                {
+                    getSupportFragmentManager().beginTransaction().
+                            replace(R.id.contenedor, new TrabajosActivity(), "SOMETAG").
+                            commit();
+                }else if(tab.getPosition()==1)
+                {
+                    getSupportFragmentManager().beginTransaction().
+                            replace(R.id.contenedor, new MistrabajosActivity(), "SOMETAG").
+                            commit();
+                    //btnArrow.setVisibility(View.VISIBLE);
+
+                }
+
             }
 
             @Override
-            public boolean onQueryTextChange(String query) {
-                // filter recycler view when text is changed
-                mServiciesAdapter.getFilter().filter(query);
-                return false;
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
             }
         });
+
+
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction().
+                    replace(R.id.contenedor, new TrabajosActivity(), "SOMETAG").
+                    commit();
+        }
 
 
 
@@ -352,33 +401,24 @@ public class MainActivity extends AppCompatActivity {
 
                         break;
                     case 2:
-                        //intent = new Intent(MainActivity.this,MyServiciesActivity.class);
-                        //startActivity(intent);
+
+                        intent = new Intent(MainActivity.this,GananciasActivity.class);
+                        startActivity(intent);
 
                         break;
                     case 3:
 
-                        //intent = new Intent(MainActivity.this,LocationActivity.class);
-                        //intent.putExtra("select","0");
-                        //startActivity(intent);
+                        intent = new Intent(MainActivity.this,CalificacionActivity.class);
+                        startActivity(intent);
 
                         break;
+
                     case 4:
-                       // intent = new Intent(MainActivity.this,ContactActivity.class);
-                        //intent.putExtra("select","0");
-                        //startActivity(intent);
-
-                        break;
-
-                    case 5:
-
                         intent = new Intent(MainActivity.this,TermsActivity.class);
                         startActivity(intent);
 
-
                         break;
-
-                    case 6:
+                    case 5:
 
                         pDialog = new SweetAlertDialog(MainActivity.this, SweetAlertDialog.NORMAL_TYPE);
                         pDialog.setTitleText(getResources().getString(R.string.app_name));
@@ -451,526 +491,77 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void message(String phone)
+
+
+    public void settingsrequest()
     {
+        LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setInterval(30 * 1000);
+        locationRequest.setFastestInterval(5 * 1000);
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                .addLocationRequest(locationRequest);
+        builder.setAlwaysShow(true); //this is the key ingredient
 
-        if(phone.equals(""))
-        {
-            pDialog= new SweetAlertDialog(MainActivity.this, SweetAlertDialog.WARNING_TYPE);
-            pDialog.setTitleText(getResources().getString(R.string.app_name));
-            pDialog.setContentText(getResources().getString(R.string.complete_perfil));
-            pDialog.setConfirmText(getResources().getString(R.string.ok));
-            pDialog.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
-                @Override
-                public void onClick(SweetAlertDialog sDialog) {
-                    sDialog.dismiss();
-                    Intent intent = new Intent(MainActivity.this, PerfilActivity.class);
-                    startActivity(intent);
-
-                }
-            });
-            pDialog.show();
-
-        }else
-        {
-            MainActivity.validate_phone = 0;
-        }
-
-
-    }
-
-    private void asignar(final int idOrden,final int position)
-    {
-        final JSONObject[] res = {null};
-        //Showing the progress dialog
-
-
-        Constants.deleteCache(MainActivity.this);
-
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, Constants.URL_SERVER+"asignar_orden/format/json",
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String responde) {
-                        Log.d(TAG, responde);
-
-                        //Showing toast message of the response
-
-
-                        try {
-                            res[0] = new JSONObject(responde);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            pDialog.dismiss();
-                        }
-
-                        try {
-
-                            if(res[0].getString("result").equals("OK")) {
-
-
-
-
-                                final JSONArray[] mObjResp = {null};
-
-                                try {
-                                    mObjResp[0] = res[0].getJSONArray("data");
-
-                                    pDialog.dismiss();
-
-                                    pDialog= new SweetAlertDialog(MainActivity.this, SweetAlertDialog.SUCCESS_TYPE);
-                                    pDialog.setTitleText(getResources().getString(R.string.app_name));
-                                    pDialog.setContentText(Constants.Decrypt(res[0].getString("message")));
-                                    pDialog.setConfirmText(getResources().getString(R.string.ok));
-                                    pDialog.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
-                                        @Override
-                                        public void onClick(SweetAlertDialog sDialog) {
-                                            sDialog.dismissWithAnimation();
-                                            mServiciesAdapter.removeItem(position);
-
-                                        }
-                                    });
-                                    pDialog.show();
-
-
-
-
-
-
-
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-
-
-                            }else
-                            {
-                                pDialog.dismiss();
-
-
-                                pDialog= new SweetAlertDialog(MainActivity.this, SweetAlertDialog.ERROR_TYPE);
-                                pDialog.setTitleText(getResources().getString(R.string.app_name));
-                                pDialog.setContentText(Constants.Decrypt(res[0].getString("message")));
-                                pDialog.setConfirmText(getResources().getString(R.string.ok));
-                                pDialog.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
-                                    @Override
-                                    public void onClick(SweetAlertDialog sDialog) {
-                                        sDialog.dismissWithAnimation();
-
-                                    }
-                                });
-                                pDialog.show();
-
-
-
-
-                            }
-                        } catch (JSONException e) {
-                            pDialog.dismiss();
-                            Log.d(TAG, e.toString());
-                            e.printStackTrace();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
-
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError volleyError) {
-                        //Dismissing the progress dialog
-                        pDialog.dismiss();
-
-                        if(volleyError.networkResponse != null && volleyError.networkResponse.data != null){
-                            VolleyError error = new VolleyError(new String(volleyError.networkResponse.data));
-                            volleyError = error;
-                        }
-
-                        //Showing toast
-                        Log.d(TAG, volleyError.toString());
-                        Toast.makeText(MainActivity.this, volleyError.toString(), Toast.LENGTH_LONG).show();
-
-
-                    }
-                }){
+        PendingResult<LocationSettingsResult> result =
+                LocationServices.SettingsApi.checkLocationSettings(googleApiClient, builder.build());
+        result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
             @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-
-
-                //Creating parameters
-                Map<String,String> params = new Hashtable<String, String>();
-
-                //Adding parameters
-
-                try {
-                    params.put("userid",Constants.Encrypt(appPreferences.getUserId()));
-                    params.put("idorden", Constants.Encrypt(String.valueOf(idOrden)));
-                    params.put("origen_mod",Constants.Encrypt(Constants.getIPAddress(true)));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-                //returning parameters
-                return params;
-            }
-        };
-
-
-        stringRequest.setRetryPolicy(new DefaultRetryPolicy(
-                50000,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-
-        RequestQueue volleyQueue = Volley.newRequestQueue(this);
-        volleyQueue.add(stringRequest);
-        DiskBasedCache cache = new DiskBasedCache(getCacheDir(), 500 * 1024 * 1024);
-        volleyQueue = new RequestQueue(cache, new BasicNetwork(new HurlStack()));
-        volleyQueue.start();
-
-    }
-
-
-    private void validaTask(String email){
-
-        final JSONObject[] res = {null};
-        //Showing the progress dialog
-
-
-        Constants.deleteCache(MainActivity.this);
-
-        final String finalEmail = email;
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, Constants.URL_SERVER+"validaUser/format/json",
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String responde) {
-                        Log.d(TAG, responde);
-
-                        //Showing toast message of the response
-
-
+            public void onResult(LocationSettingsResult result) {
+                final Status status = result.getStatus();
+                final LocationSettingsStates state = result.getLocationSettingsStates();
+                switch (status.getStatusCode()) {
+                    case LocationSettingsStatusCodes.SUCCESS:
+                        // All location settings are satisfied. The client can initialize location
+                        // requests here.
+                        break;
+                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                        // Location settings are not satisfied. But could be fixed by showing the user
+                        // a dialog.
                         try {
-                            res[0] = new JSONObject(responde);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            pDialog.dismiss();
+                            // Show the dialog by calling startResolutionForResult(),
+                            // and check the result in onActivityResult().
+                            status.startResolutionForResult(MainActivity.this, REQUEST_CHECK_SETTINGS);
+                        } catch (IntentSender.SendIntentException e) {
+                            // Ignore the error.
                         }
-
-                        try {
-
-                            if(res[0].getString("result").equals("OK")) {
-
-
-
-
-                                final JSONArray[] mObjResp = {null};
-
-                                try {
-                                    mObjResp[0] = res[0].getJSONArray("data");
-                                    JSONObject mObj = mObjResp[0].getJSONObject(0);
-
-                                    appPreferences.setUserId(Constants.Decrypt(mObj.getString("id_persona")));
-                                    mObj = mObjResp[0].getJSONObject(1);
-                                    appPreferences.setImagen(mObj.getString("imagen"));
-
-                                    mObj = mObjResp[0].getJSONObject(2);
-
-                                    appPreferences.setUser(Constants.Decrypt(mObj.getString("nombres")));
-
-                                    mObj = mObjResp[0].getJSONObject(3);
-
-
-                                    final String phone =  mObj.getString("telefono");
-                                    pDialog.dismiss();
-
-                                    for (int x = 4; x < mObjResp[0].length(); x++) {
-                                        mObj = mObjResp[0].getJSONObject(x);
-
-
-                                        final JSONObject finalMObj = mObj;
-                                        final int finalX = x;
-                                        final int cantidad =  mObjResp[0].length();
-                                        new Handler(Looper.getMainLooper()).post(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                try {
-
-
-                                                    mListServicios.add(new Ordenes(Integer.parseInt(Constants.Decrypt(finalMObj.getString("id"))), Constants.Decrypt(finalMObj.getString("cliente")), Constants.Decrypt(finalMObj.getString("servicio")), Integer.parseInt(Constants.Decrypt(finalMObj.getString("estado"))), Constants.Decrypt(finalMObj.getString("fecha")), Constants.Decrypt(finalMObj.getString("costo")), Constants.Decrypt(finalMObj.getString("direccion")), Constants.Decrypt(finalMObj.getString("longitud")),Constants.Decrypt(finalMObj.getString("latitud"))));
-
-                                                    } catch (Exception e) {
-                                                    e.printStackTrace();
-                                                }
-
-                                                if( finalX == (cantidad -1)){
-                                                    message(phone);
-                                                }
-
-                                                mListServiciosFilter = mListServicios;
-                                                mServiciesAdapter.notifyItemChanged(finalX);
-
-
-                                            }
-                                        });
-
-
-
-
-
-                                    }
-
-
-
-
-
-
-
-
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-
-
-                            }else
-                            {
-                                pDialog.dismiss();
-
-
-                                pDialog= new SweetAlertDialog(MainActivity.this, SweetAlertDialog.ERROR_TYPE);
-                                pDialog.setTitleText(getResources().getString(R.string.app_name));
-                                pDialog.setContentText(Constants.Decrypt(res[0].getString("message")));
-                                pDialog.setConfirmText(getResources().getString(R.string.ok));
-                                pDialog.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
-                                    @Override
-                                    public void onClick(SweetAlertDialog sDialog) {
-                                        sDialog.dismissWithAnimation();
-                                        FirebaseAuth.getInstance().signOut();
-                                        LoginManager.getInstance().logOut();
-                                        finish();
-                                    }
-                                });
-                                pDialog.show();
-
-
-
-
-                            }
-                        } catch (JSONException e) {
-                            pDialog.dismiss();
-                            Log.d(TAG, e.toString());
-                            e.printStackTrace();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
-
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError volleyError) {
-                        //Dismissing the progress dialog
-                        pDialog.dismiss();
-
-                        if(volleyError.networkResponse != null && volleyError.networkResponse.data != null){
-                            VolleyError error = new VolleyError(new String(volleyError.networkResponse.data));
-                            volleyError = error;
-                        }
-
-                        //Showing toast
-                        Log.d(TAG, volleyError.toString());
-                        Toast.makeText(MainActivity.this, volleyError.toString(), Toast.LENGTH_LONG).show();
-
-
-                    }
-                }){
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-
-
-                //Creating parameters
-                Map<String,String> params = new Hashtable<String, String>();
-
-                //Adding parameters
-
-                try {
-                    params.put("email", Constants.Encrypt(finalEmail));
-                    params.put("token", appPreferences.getFirebasetoken());
-                    params.put("cargo", Constants.Encrypt("2"));
-                } catch (Exception e) {
-                    e.printStackTrace();
+                        break;
+                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                        // Location settings are not satisfied. However, we have no way to fix the
+                        // settings so we won't show the dialog.
+                        break;
                 }
-
-                //returning parameters
-                return params;
             }
-        };
+        });
+    }
 
 
-        stringRequest.setRetryPolicy(new DefaultRetryPolicy(
-                50000,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-
-        RequestQueue volleyQueue = Volley.newRequestQueue(this);
-        volleyQueue.add(stringRequest);
-        DiskBasedCache cache = new DiskBasedCache(getCacheDir(), 500 * 1024 * 1024);
-        volleyQueue = new RequestQueue(cache, new BasicNetwork(new HurlStack()));
-        volleyQueue.start();
-
-
-
-
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+// Check for the integer request code originally supplied to startResolutionForResult().
+            case REQUEST_CHECK_SETTINGS:
+                switch (resultCode) {
+                    case Activity.RESULT_OK:
+                        lat = String.valueOf(gps.getLatitude());
+                        log = String.valueOf(gps.getLongitude());
+                        break;
+                    case Activity.RESULT_CANCELED:
+                        settingsrequest();//keep asking if imp or do whatever
+                        break;
+                }
+                break;
+        }
     }
 
 
 
-    /* adapter*/
-
-    public class ServiciesRecycleAdapter extends RecyclerView.Adapter<ServiciesRecycleHolder>   implements Filterable {
-        private int lastPosition = -1;
-
-        @Override
-        public  ServiciesRecycleHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-
-            View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_servicios, viewGroup, false);
-            setAnimation(v,i);
-            return new  ServiciesRecycleHolder(v);
-        }
-
-
-        @Override
-        public void onBindViewHolder(final  ServiciesRecycleHolder productHolder, final int i) {
-
-            productHolder.mtxtNombre.setText(mListServiciosFilter.get(i).getCliente());
-            productHolder.mtxtFecha.setText(mListServiciosFilter.get(i).getFecha());
-            productHolder.mtxtServicio.setText(mListServiciosFilter.get(i).getServicio());
-
-
-            productHolder.mContenedor.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                    pDialog = new SweetAlertDialog(MainActivity.this, SweetAlertDialog.WARNING_TYPE);
-                    pDialog.setTitleText(getResources().getString(R.string.app_name));
-                    pDialog.setContentText(getString(R.string.asignar));
-                    pDialog.setConfirmText(getResources().getString(R.string.yes));
-                    pDialog.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
-                        @Override
-                        public void onClick(SweetAlertDialog sDialog) {
-                            sDialog.dismissWithAnimation();
-                            asignar(mListServiciosFilter.get(i).getId(),i);
-
-                        }
-                    });
-                    pDialog.setCancelText(getString(R.string.no));
-                    pDialog.show();
 
 
 
 
-                }
-            });
-
-            setAnimation(productHolder.itemView, i);
 
 
-
-        }
-
-
-        @Override
-        public int getItemCount() {
-            return mListServiciosFilter.size();
-        }
-
-        public void removeItem(int position) {
-            mListServiciosFilter.remove(position);
-            notifyItemRemoved(position);
-            notifyItemRangeChanged(position, mListServiciosFilter.size());
-            //Signal.get().reset();
-
-
-        }
-
-        private void setAnimation(View viewToAnimate, int position) {
-            // If the bound view wasn't previously displayed on screen, it's animated
-            if (position > lastPosition) {
-                Animation animation;
-                if (position % 2 == 0) {
-                    animation = AnimationUtils.loadAnimation(MainActivity.this, R.anim.zoom_back_in);
-                } else {
-                    animation = AnimationUtils.loadAnimation(MainActivity.this, R.anim.zoom_forward_in);
-                }
-
-                viewToAnimate.startAnimation(animation);
-                lastPosition = position;
-            }
-        }
-
-        @Override
-        public Filter getFilter() {
-            return new Filter() {
-                @Override
-                protected FilterResults performFiltering(CharSequence charSequence) {
-                    String charString = charSequence.toString();
-                    if (charString.isEmpty()) {
-                        mListServiciosFilter = mListServicios;
-                    } else {
-                        ArrayList<Ordenes> filteredList = new ArrayList<>();
-                        for (Ordenes row : mListServicios) {
-
-                            // name match condition. this might differ depending on your requirement
-                            // here we are looking for name or phone number match
-
-
-                            if (row.getCliente().toLowerCase().contains(charString.toLowerCase()) || row.getServicio().toLowerCase().contains(charString.toLowerCase()) || row.getDireccion().toLowerCase().contains(charString.toLowerCase()) || row.getFecha().toLowerCase().contains(charString.toLowerCase()))
-                            {
-                                filteredList.add(row);
-                            }
-
-                        }
-
-                        mListServiciosFilter = filteredList;
-                    }
-
-                    FilterResults filterResults = new FilterResults();
-                    filterResults.values = mListServiciosFilter;
-                    return filterResults;
-                }
-
-                @Override
-                protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
-                    mListServiciosFilter = (ArrayList<Ordenes>) filterResults.values;
-                    notifyDataSetChanged();
-                }
-            };
-        }
-
-
-    }
-
-    public class  ServiciesRecycleHolder extends RecyclerView.ViewHolder {
-        public TextView mtxtNombre;
-        public TextView mtxtFecha;
-        public TextView mtxtServicio;
-        public CardView mContenedor;
-
-
-
-
-        public  ServiciesRecycleHolder(View itemView) {
-            super(itemView);
-            mtxtNombre = (TextView) itemView.findViewById(R.id.txtNombre);
-            mtxtFecha = (TextView) itemView.findViewById(R.id.txtFecha);
-            mtxtServicio = (TextView) itemView.findViewById(R.id.txtServicio);
-            mContenedor = (CardView) itemView.findViewById(R.id.contenedor);
-
-        }
-    }
 
 
 
